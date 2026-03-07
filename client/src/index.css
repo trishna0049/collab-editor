@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body, #root { height: 100%; background: #0f172a; color: #f1f5f9; font-family: 'Inter', system-ui, sans-serif; }
+
+/* Remote cursor animations */
+.remote-cursor { position: absolute; pointer-events: none; z-index: 100; }
+.remote-cursor-line { width: 2px; animation: cursorBlink 1.2s infinite; }
+@keyframes cursorBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+.remote-cursor-label { font-size: 11px; padding: 1px 5px; border-radius: 3px; white-space: nowrap; margin-top: -18px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #1e293b; }
+::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
