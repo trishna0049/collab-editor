@@ -91,7 +91,7 @@ flowchart LR
         N[Nginx in client container] --> U
 ```
 
-### Request Lifecycle (Session Edit)
+### Request Flow
 
 ```mermaid
 sequenceDiagram
@@ -124,7 +124,7 @@ flowchart TD
         WS --> DOC
 ```
 
-### Socket.IO Communication
+### Socket.IO Flow
 
 ```mermaid
 sequenceDiagram
