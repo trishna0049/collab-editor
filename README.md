@@ -718,19 +718,7 @@ Not implemented:
 
 ---
 
-## 18. Future Enhancements
-
-Planned (not implemented):
-1. Enforce auth middleware on protected routes and add document-level authorization.
-2. Expand CI pipeline with linting, container build verification, and deployment gates.
-3. Add integration tests for auth, session lifecycle, and OT conflict paths.
-4. Introduce structured observability (metrics, dashboards, and alerting).
-5. Add richer execution controls (stdin UI, execution limits visibility, retries/timeouts).
-6. Add production-ready secret management and environment template files.
-
----
-
-## 19. Contributing
+## 18. Contributing
 
 Contributions are welcome.
 
@@ -748,7 +736,7 @@ Quality expectations:
 
 ---
 
-## 20. Testing
+## 19. Testing
 
 The project includes automated Jest unit tests for the Operational Transformation (OT) engine.
 
