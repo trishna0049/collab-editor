@@ -1,5 +1,9 @@
 # CodeCollab
 
+![CI](https://github.com/YOUR_GITHUB_USERNAME/collab-editor/actions/workflows/ci.yml/badge.svg)
+
+Replace YOUR_GITHUB_USERNAME with your GitHub username to activate the badge.
+
 Real-time collaborative code editing with operational transformation, live presence, and remote code execution.
 
 ## 1. Project Title
@@ -68,7 +72,7 @@ Technical objectives:
 ### Partially Implemented / Not Implemented
 - AI: Not implemented.
 - Monitoring/observability stack (Prometheus/Grafana): Not implemented.
-- CI/CD workflows: Not implemented.
+- CI/CD workflows: Partially implemented (build and test workflow via GitHub Actions).
 - Analytics dashboard/telemetry: Not implemented.
 
 ---
@@ -118,6 +122,46 @@ flowchart TD
         AUTH --> USER[(User Model)]
         WS --> OT[OT Engine]
         WS --> DOC
+```
+
+### Socket.IO Communication
+
+```mermaid
+sequenceDiagram
+        participant A as Client A
+        participant S as Socket Server
+        participant B as Client B
+
+        A->>S: join-session
+        S-->>A: init-document
+        S-->>B: user-joined
+        A->>S: operation
+        S-->>A: ack
+        S-->>B: operation
+        A->>S: cursor-change
+        S-->>B: cursor-update
+```
+
+### Operational Transformation Flow
+
+```mermaid
+flowchart LR
+        OP[Incoming operation + revision] --> XFORM[Transform against newer ops]
+        XFORM --> APPLY[Apply transformed op to server document]
+        APPLY --> ACK[Send ack to sender]
+        APPLY --> BR[Broadcast transformed op to room]
+        APPLY --> SAVE[Schedule debounced persistence]
+```
+
+### Client <-> Server Flow
+
+```mermaid
+flowchart LR
+        C[React + Monaco Client] -->|REST: auth/sessions/execute| API[Express API]
+        C -->|Socket.IO events| WS[Collab Socket Handler]
+        WS --> DB[(MongoDB)]
+        API --> DB
+        API --> J0[Judge0]
 ```
 
 ### Database Interactions
@@ -180,13 +224,17 @@ flowchart LR
 
 ### CI Pipeline
 
-Partially Implemented: **Not implemented (no .github/workflows).**
+Partially Implemented: **Implemented for build/test checks; release/deploy stages are not implemented.**
 
 ```mermaid
 flowchart LR
-        PR[Pull Request] -. no workflow configured .-> CI[Build/Test Pipeline]
-        CI -. not configured .-> IMG[Container Publish]
-        IMG -. not configured .-> DEP[Deploy]
+        PR[Pull Request] --> CI[GitHub Actions CI]
+        CI --> B1[Install client deps]
+        CI --> B2[Build client]
+        CI --> B3[Install server deps]
+        CI --> B4[Run server tests]
+        CI -. future .-> IMG[Container Publish]
+        IMG -. future .-> DEP[Deploy]
 ```
 
 ### Docker Architecture
@@ -222,7 +270,8 @@ flowchart TB
 | Code Execution | Judge0 API | Remote sandboxed code execution via HTTP API. |
 | DevOps | Docker, Docker Compose, Nginx | Reproducible local stack and frontend serving/proxying. |
 | Security | Helmet, CORS, bcryptjs, jsonwebtoken, express-rate-limit | Baseline API hardening and auth/token management. |
-| Testing | Jest, Supertest (dependencies only) | Frameworks present but tests are currently missing. |
+| Testing | Jest, Supertest | Unit tests currently cover OT engine logic; supertest is available for API testing expansion. |
+| CI/CD | GitHub Actions | Automated CI workflow runs client build and server tests on push/PR to main. |
 | Monitoring | API health endpoint + morgan/console | Basic runtime visibility; no metrics stack integration yet. |
 | Cloud | Not implemented | No cloud deployment manifests or IaC in repository. |
 | AI | Not implemented | No AI module or model integration exists in codebase. |
@@ -635,18 +684,20 @@ Not implemented:
 
 ## 16. CI/CD
 
-Partially Implemented: **Not implemented in repository.**
+Partially Implemented: **Implemented for CI checks; deployment automation is not implemented.**
 
 Current state:
-- No GitHub Actions workflow files.
-- No automated build/test/publish pipeline definitions.
-- No deployment workflow manifests.
+- GitHub Actions workflow exists at .github/workflows/ci.yml.
+- Workflow triggers on push and pull_request to main.
+- Workflow installs dependencies for client/server, builds client, and runs server tests.
+- No container publish or automated deployment stages.
 
 ```mermaid
 flowchart LR
         Commit[Code Commit] --> PR[Pull Request]
-        PR --> Manual[Manual validation today]
-        Manual --> Deploy[Manual deployment]
+        PR --> CI[GitHub Actions CI]
+        CI --> Merge[Merge Decision]
+        Merge --> Deploy[Manual deployment]
 ```
 
 ---
@@ -667,24 +718,11 @@ Not implemented:
 
 ---
 
-## 18. Screenshots
-
-Screenshots are currently unavailable in this repository.
-
-Add placeholders/images at these suggested paths:
-- docs/screenshots/dashboard.png - Session creation and collaboration landing page.
-- docs/screenshots/login.png - Login/Register screen.
-- docs/screenshots/editor-history.png - Editor with history sidebar open.
-- docs/screenshots/monitoring.png - Monitoring view (when implemented).
-- docs/screenshots/ai-features.png - AI feature view (when implemented).
-
----
-
-## 19. Future Enhancements
+## 18. Future Enhancements
 
 Planned (not implemented):
 1. Enforce auth middleware on protected routes and add document-level authorization.
-2. Add CI pipeline for lint, test, and container build verification.
+2. Expand CI pipeline with linting, container build verification, and deployment gates.
 3. Add integration tests for auth, session lifecycle, and OT conflict paths.
 4. Introduce structured observability (metrics, dashboards, and alerting).
 5. Add richer execution controls (stdin UI, execution limits visibility, retries/timeouts).
@@ -692,7 +730,7 @@ Planned (not implemented):
 
 ---
 
-## 20. Contributing
+## 19. Contributing
 
 Contributions are welcome.
 
@@ -707,6 +745,27 @@ Quality expectations:
 - Keep changes scoped.
 - Preserve API/socket compatibility unless explicitly versioned.
 - Update documentation for behavior changes.
+
+---
+
+## 20. Testing
+
+The project includes automated Jest unit tests for the Operational Transformation (OT) engine.
+
+### Coverage
+
+- Applying text operations.
+- Concurrent operation transformation.
+- Handling stale revision operations.
+
+Run locally:
+
+```bash
+cd server
+npm test
+```
+
+CI currently runs these tests via GitHub Actions on push and pull requests to main.
 
 ---
 
